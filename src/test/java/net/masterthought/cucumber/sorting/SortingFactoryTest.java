@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 
-import mockit.Deencapsulation;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.powermock.reflect.Whitebox;
 
 import net.masterthought.cucumber.generators.integrations.PageTest;
 import net.masterthought.cucumber.json.Feature;
@@ -17,15 +17,15 @@ import net.masterthought.cucumber.json.support.TagObject;
 /**
  * @author Damian Szczepanik (damianszczepanik@github)
  */
-public class SortingFactoryTest extends PageTest {
+class SortingFactoryTest extends PageTest {
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         setUpWithJson(SAMPLE_JSON);
     }
 
     @Test
-    public void sortFeatures_OnNATURAL_ReturnsSameList() {
+    void sortFeatures_OnNATURAL_ReturnsSameList() {
 
         // given
         SortingFactory sortingFactory = new SortingFactory(SortingMethod.NATURAL);
@@ -38,7 +38,7 @@ public class SortingFactoryTest extends PageTest {
     }
 
     @Test
-    public void sortFeatures_OnALPHABETICAL_ReturnsSortedList() {
+    void sortFeatures_OnALPHABETICAL_ReturnsSortedList() {
 
         // given
         SortingFactory sortingFactory = new SortingFactory(SortingMethod.ALPHABETICAL);
@@ -51,7 +51,7 @@ public class SortingFactoryTest extends PageTest {
     }
 
     @Test
-    public void sortFeatures_OnINVALID_ThrowsException() {
+    void sortFeatures_OnINVALID_ThrowsException() {
 
         // given
         // INVALID is available only for test profile and the reason of this shadow Enum in test profile is
@@ -65,7 +65,7 @@ public class SortingFactoryTest extends PageTest {
     }
 
     @Test
-    public void sortTags_OnNATURAL_ReturnsSameList() {
+    void sortTags_OnNATURAL_ReturnsSameList() {
 
         // given
         SortingFactory sortingFactory = new SortingFactory(SortingMethod.NATURAL);
@@ -79,7 +79,7 @@ public class SortingFactoryTest extends PageTest {
     }
 
     @Test
-    public void sortTags_OnALPHABETICAL_ReturnsSameList() {
+    void sortTags_OnALPHABETICAL_ReturnsSameList() {
 
         // given
         SortingFactory sortingFactory = new SortingFactory(SortingMethod.ALPHABETICAL);
@@ -92,7 +92,7 @@ public class SortingFactoryTest extends PageTest {
     }
 
     @Test
-    public void sortTags_OnINVALID_ThrowsException() {
+    void sortTags_OnINVALID_ThrowsException() {
 
         // given
         SortingFactory sortingFactory = new SortingFactory(SortingMethod.INVALID);
@@ -104,7 +104,7 @@ public class SortingFactoryTest extends PageTest {
     }
 
     @Test
-    public void sortSteps_OnNATURAL_ReturnsSameList() {
+    void sortSteps_OnNATURAL_ReturnsSameList() {
 
         // given
         SortingFactory sortingFactory = new SortingFactory(SortingMethod.NATURAL);
@@ -119,7 +119,7 @@ public class SortingFactoryTest extends PageTest {
     }
 
     @Test
-    public void sortSteps_OnALPHABETICAL_ReturnsSameList() {
+    void sortSteps_OnALPHABETICAL_ReturnsSameList() {
 
         // given
         SortingFactory sortingFactory = new SortingFactory(SortingMethod.ALPHABETICAL);
@@ -135,7 +135,7 @@ public class SortingFactoryTest extends PageTest {
     }
 
     @Test
-    public void sortSteps_OnINVALID_ThrowsException() {
+    void sortSteps_OnINVALID_ThrowsException() {
 
         // given
         SortingMethod sortingMethod = SortingMethod.INVALID;
@@ -148,14 +148,14 @@ public class SortingFactoryTest extends PageTest {
     }
 
     @Test
-    public void createUnknownMethodException_CreatesException() {
+    void createUnknownMethodException_CreatesException() throws Exception {
 
         // given
         SortingMethod invalidSorthingMethod = SortingMethod.ALPHABETICAL;
         SortingFactory sortingFactory = new SortingFactory(SortingMethod.ALPHABETICAL);
 
         // when
-        Exception e = Deencapsulation.invoke(sortingFactory, "createUnknownMethodException", invalidSorthingMethod);
+        Exception e = Whitebox.invokeMethod(sortingFactory, "createUnknownMethodException", invalidSorthingMethod);
 
         // then
         assertThat(e).isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("Unsupported sorting method: " + invalidSorthingMethod);

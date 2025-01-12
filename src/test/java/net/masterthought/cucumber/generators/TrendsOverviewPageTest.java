@@ -3,35 +3,35 @@ package net.masterthought.cucumber.generators;
 import java.io.File;
 import java.io.IOException;
 
-import mockit.Deencapsulation;
 import net.masterthought.cucumber.ReportBuilder;
 import net.masterthought.cucumber.ReportResult;
 import net.masterthought.cucumber.Trends;
 import net.masterthought.cucumber.generators.integrations.PageTest;
 import org.apache.commons.io.FileUtils;
 import org.apache.velocity.VelocityContext;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.powermock.reflect.Whitebox;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Damian Szczepanik (damianszczepanik@github)
  */
-public class TrendsOverviewPageTest extends PageTest {
+class TrendsOverviewPageTest extends PageTest {
 
     private final String TRENDS_FILE = pathToSampleFile("cucumber-trends.json");
     private final String TRENDS_TMP_FILE = TRENDS_FILE + "-tmp";
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         setUpWithJson(SAMPLE_JSON);
         // refresh the file if it was already copied by another/previous test
         FileUtils.copyFile(new File(TRENDS_FILE), new File(TRENDS_TMP_FILE));
     }
 
     @Test
-    public void getWebPage_ReturnsTrendsOverviewFileName() {
+    void getWebPage_ReturnsTrendsOverviewFileName() {
 
         // given
         page = new TrendsOverviewPage(reportResult, configuration, null);
@@ -44,14 +44,14 @@ public class TrendsOverviewPageTest extends PageTest {
     }
 
     @Test
-    public void prepareReport_AddsCustomProperties() {
+    void prepareReport_AddsCustomProperties() throws Exception {
 
         // given
         configuration.setBuildNumber("myBuild");
-        Trends trends = Deencapsulation.invoke(ReportBuilder.class, "loadTrends", new File(TRENDS_TMP_FILE));
+        Trends trends = Whitebox.invokeMethod(ReportBuilder.class, "loadTrends", new File(TRENDS_TMP_FILE));
         page = new TrendsOverviewPage(reportResult, configuration, trends);
 
-        Deencapsulation.setField(page, "reportResult", new ReportResult(features, configuration));
+        Whitebox.setInternalState(page, "reportResult", new ReportResult(features, configuration));
 
         // when
         page.prepareReport();

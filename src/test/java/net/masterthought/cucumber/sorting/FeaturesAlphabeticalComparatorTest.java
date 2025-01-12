@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Comparator;
 
-import mockit.Deencapsulation;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.powermock.reflect.Whitebox;
 
 import net.masterthought.cucumber.generators.integrations.PageTest;
 import net.masterthought.cucumber.json.Feature;
@@ -14,17 +14,17 @@ import net.masterthought.cucumber.json.Feature;
 /**
  * @author Damian Szczepanik (damianszczepanik@github)
  */
-public class FeaturesAlphabeticalComparatorTest extends PageTest {
+class FeaturesAlphabeticalComparatorTest extends PageTest {
 
     private final Comparator<Feature> comparator = new FeaturesAlphabeticalComparator();
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         setUpWithJson(SAMPLE_JSON);
     }
 
     @Test
-    public void compareTo_OnSameFeature_ReturnsZero() {
+    void compareTo_OnSameFeature_ReturnsZero() {
 
         // given
         Feature feature1 = features.get(0);
@@ -38,7 +38,7 @@ public class FeaturesAlphabeticalComparatorTest extends PageTest {
     }
 
     @Test
-    public void compareTo_OnSameName_ReturnsNotZero() {
+    void compareTo_OnSameName_ReturnsNotZero() {
 
         // given
         Feature feature1 = features.get(0);
@@ -52,7 +52,7 @@ public class FeaturesAlphabeticalComparatorTest extends PageTest {
     }
 
     @Test
-    public void compareTo_OnSameNameAndId_ReturnsNotZero() {
+    void compareTo_OnSameNameAndId_ReturnsNotZero() {
 
         // given
         Feature feature1 = features.get(0);
@@ -66,7 +66,7 @@ public class FeaturesAlphabeticalComparatorTest extends PageTest {
     }
 
     @Test
-    public void compareTo_OnDifferentName_ReturnsNotZero() {
+    void compareTo_OnDifferentName_ReturnsNotZero() {
 
         // given
         Feature feature1 = features.get(0);
@@ -81,9 +81,9 @@ public class FeaturesAlphabeticalComparatorTest extends PageTest {
 
     private static Feature buildFeature(final String name, final String id, final String reportFileName) {
         Feature feature = new Feature();
-        Deencapsulation.setField(feature, "name", name);
-        Deencapsulation.setField(feature, "id", id);
-        Deencapsulation.setField(feature, "reportFileName", reportFileName);
+        Whitebox.setInternalState(feature, "name", name);
+        Whitebox.setInternalState(feature, "id", id);
+        Whitebox.setInternalState(feature, "reportFileName", reportFileName);
 
         return feature;
     }
