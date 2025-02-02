@@ -8,10 +8,8 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.InjectableValues;
@@ -20,9 +18,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import net.masterthought.cucumber.json.Feature;
 import net.masterthought.cucumber.reducers.ReducingMethod;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
@@ -30,7 +32,7 @@ import org.apache.commons.lang3.ArrayUtils;
  */
 public class ReportParser {
 
-    private static final Logger LOG = Logger.getLogger(ReportParser.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(ReportParser.class);
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final Configuration configuration;
@@ -67,7 +69,7 @@ public class ReportParser {
                 continue;
             }
             Feature[] features = parseForFeature(jsonFile);
-            LOG.log(Level.INFO, () -> String.format("File '%s' contains %d feature(s)", jsonFile, features.length));
+            LOG.info("File '{}' contains {} feature(s)", jsonFile, features.length);
             featureResults.addAll(Arrays.asList(features));
         }
 
@@ -89,11 +91,11 @@ public class ReportParser {
         try (Reader reader = new InputStreamReader(new FileInputStream(jsonFile), StandardCharsets.UTF_8)) {
             Feature[] features = mapper.readValue(reader, Feature[].class);
             if (ArrayUtils.isEmpty(features)) {
-                LOG.log(Level.INFO, () -> String.format("File '%s' does not contain features", jsonFile));
+                LOG.info("File '{}' does not contain features", jsonFile);
             }
             String jsonFileName = extractQualifier(jsonFile);
             Arrays.stream(features).forEach(feature ->
-                    feature.setQualifier(StringUtils.defaultString(configuration.getQualifier(jsonFileName), jsonFileName))
+                    feature.setQualifier(Objects.toString(configuration.getQualifier(jsonFileName), jsonFileName))
             );
 
             return features;
@@ -134,14 +136,20 @@ public class ReportParser {
     }
 
     private void processClassificationFile(String file) {
+        FileBasedConfigurationBuilder<PropertiesConfiguration> builder = new FileBasedConfigurationBuilder<>(PropertiesConfiguration.class)
+                .configure(new Parameters().properties().setFile(new File(file))
+                        .setThrowExceptionOnMissing(true));
         try {
-            PropertiesConfiguration config = new PropertiesConfiguration(file);
-            Iterator<String> keys = config.getKeys();
-            while (keys.hasNext()) {
-                String key = keys.next();
-                String value = config.getProperty(key).toString();
-                this.configuration.addClassifications(key, value);
-            }
+            PropertiesConfiguration config = builder.getConfiguration();
+
+            config.getKeys().forEachRemaining(key -> {
+                if (config.getStringArray(key).length > 1) {
+                    // Duplicate keys
+                    this.configuration.addClassifications(key, Arrays.toString(config.getStringArray(key)));
+                } else {
+                    this.configuration.addClassifications(key,config.getString(key));
+                }
+                });
         } catch (ConfigurationException e) {
             throw new ValidationException(String.format("File '%s' doesn't exist or the properties file is invalid!", file), e);
         }

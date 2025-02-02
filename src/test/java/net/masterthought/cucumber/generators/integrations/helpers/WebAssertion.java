@@ -2,11 +2,11 @@ package net.masterthought.cucumber.generators.integrations.helpers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.text.StrBuilder;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -37,9 +37,9 @@ public class WebAssertion {
 
         assertNotEmpty(inners, cssClass);
         if (inners.size() > 1) {
-            StrBuilder sb = new StrBuilder();
+            StringBuilder sb = new StringBuilder();
             for (Element inner : inners) {
-                sb.append(inners).append("\n");
+                sb.append(inner).append("\n");
             }
             throw new IllegalArgumentException(String.format("Expected one but found %d elements with class '%s': %s",
                     inners.size(), cssClass, sb.toString()));
@@ -60,7 +60,7 @@ public class WebAssertion {
 
         assertNotEmpty(matched, cssClass);
         if (matched.size() > 1) {
-            StrBuilder sb = new StrBuilder();
+            StringBuilder sb = new StringBuilder();
             for (Element element : matched) {
                 sb.append(element).append("\n");
             }
@@ -82,10 +82,10 @@ public class WebAssertion {
     private <T extends WebAssertion> T toAssertion(Element inner, Class<T> clazz) {
         T assertion = null;
         try {
-            assertion = (T) clazz.newInstance();
+            assertion = (T) clazz.getDeclaredConstructor().newInstance();
             assertion.element = inner;
             return assertion;
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -107,8 +107,8 @@ public class WebAssertion {
         for (Element element : inners) {
             T assertion = null;
             try {
-                assertion = (T) clazz.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
+                assertion = (T) clazz.getDeclaredConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
                 throw new IllegalArgumentException(e);
             }
             assertion.element = element;

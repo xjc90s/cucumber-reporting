@@ -1,9 +1,8 @@
 package net.masterthought.cucumber.generators.integrations;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import mockit.Deencapsulation;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.powermock.reflect.Whitebox;
 
 import net.masterthought.cucumber.ReportBuilder;
 import net.masterthought.cucumber.Trends;
@@ -15,14 +14,14 @@ import net.masterthought.cucumber.generators.integrations.helpers.WebAssertion;
 /**
  * @author Damian Szczepanik (damianszczepanik@github)
  */
-public class TrendsOverviewPageIntegrationTest extends PageTest {
+class TrendsOverviewPageIntegrationTest extends PageTest {
 
     @Test
-    public void generatePage_generatesTitle() {
+    void generatePage_generatesTitle() throws Exception {
 
         // given
         setUpWithJson(SAMPLE_JSON);
-        Trends trends = Deencapsulation.invoke(ReportBuilder.class, "loadTrends", TRENDS_FILE);
+        Trends trends = Whitebox.invokeMethod(ReportBuilder.class, "loadTrends", TRENDS_FILE);
         page = new TrendsOverviewPage(reportResult, configuration, trends);
         final String titleValue = String.format("Cucumber Reports  - Trends Overview",
                 configuration.getBuildNumber());
@@ -38,11 +37,11 @@ public class TrendsOverviewPageIntegrationTest extends PageTest {
     }
 
     @Test
-    public void generatePage_generatesLead() {
+    void generatePage_generatesLead() throws Exception {
 
         // given
         setUpWithJson(SAMPLE_JSON);
-        Trends trends = Deencapsulation.invoke(ReportBuilder.class, "loadTrends", TRENDS_FILE);
+        Trends trends = Whitebox.invokeMethod(ReportBuilder.class, "loadTrends", TRENDS_FILE);
         page = new TrendsOverviewPage(reportResult, configuration, trends);
 
         // when
@@ -57,11 +56,11 @@ public class TrendsOverviewPageIntegrationTest extends PageTest {
     }
 
     @Test
-    public void generatePage_generatesCharts() {
+    void generatePage_generatesCharts() throws Exception {
 
         // given
         setUpWithJson(SAMPLE_JSON);
-        Trends trends = Deencapsulation.invoke(ReportBuilder.class, "loadTrends", TRENDS_FILE);
+        Trends trends = Whitebox.invokeMethod(ReportBuilder.class, "loadTrends", TRENDS_FILE);
         page = new TrendsOverviewPage(reportResult, configuration, trends);
 
         // when
@@ -77,11 +76,11 @@ public class TrendsOverviewPageIntegrationTest extends PageTest {
     }
 
     @Test
-    public void generatePage_insertsChartData() {
+    void generatePage_insertsChartData() throws Exception {
 
         // given
         setUpWithJson(SAMPLE_JSON);
-        Trends trends = Deencapsulation.invoke(ReportBuilder.class, "loadTrends", TRENDS_FILE);
+        Trends trends = Whitebox.invokeMethod(ReportBuilder.class, "loadTrends", TRENDS_FILE);
         page = new TrendsOverviewPage(reportResult, configuration, trends);
 
         // when
